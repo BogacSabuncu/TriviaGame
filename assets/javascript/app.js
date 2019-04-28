@@ -1,32 +1,46 @@
 let correctCount = 0;
 let falseCount = 0;
+let qCount = 1;
+let timeOutId;
+let time = 10;
+let startState = false;
+
 let triviaUrl = "https://opentdb.com/api.php?amount=1&type=multiple&encode=url3986";
 
 var shuffledAnswers = new Array();
 let correctAnswer = "";
 
 function getQuestions() {
+
     $.ajax({
         url: triviaUrl,
         method: 'GET'
     }).then(function (response) {
 
-        //get the answers from the json and push them in to an array
-        shuffledAnswers =[];
-        shuffledAnswers.push(response.results[0].correct_answer);
-        correctAnswer = response.results[0].correct_answer;
+        if(qCount <= 10){
+            //get the answers from the json and push them in to an array
+            shuffledAnswers =[];
+            shuffledAnswers.push(response.results[0].correct_answer);
+            correctAnswer = response.results[0].correct_answer;
 
-        response.results[0].incorrect_answers.forEach(element => {
-            shuffledAnswers.push(element)
-        });
+            response.results[0].incorrect_answers.forEach(element => {
+                shuffledAnswers.push(element)
+            });
 
-        //shuffle the array
-        shuffledAnswers = shuffleArr(shuffledAnswers);
+            //shuffle the array
+            shuffledAnswers = shuffleArr(shuffledAnswers);
 
-        console.log(correctAnswer);
-        console.log(shuffledAnswers);
+            console.log(correctAnswer);
+            console.log(shuffledAnswers);
 
-        renderQuestion(response);
+            renderQuestion(response);
+
+            timeOutId = setInterval(countDown, 1000);
+        }
+        else{
+            displayResults();
+        }
+    
 
     }).catch(function (err) {
         console.log(err);
@@ -37,6 +51,33 @@ function getQuestions() {
 function reset() {
     correctCount = 0;
     falseCount = 0;
+    qCount = 0;
+    time = 10;
+    clearInterval(timeOutId);
+
+    startState = false;
+    $("#triviaDiv").empty();
+    $("#triviaDiv").append(`<button type="button" id ="startBut"> START! </button>`);
+}
+
+function displayResults(){
+    $("#triviaDiv").empty();
+    $("#triviaDiv").append(`<h4> Correct : ${correctCount} </h4>`);
+    $("#triviaDiv").append(`<h4> Incorrect : ${falseCount} </h4>`);
+    $("#triviaDiv").append(`<button type="button" id = "resetBut"> Restart! </button>`);
+}
+
+function countDown(){
+    time--;
+
+    if(time == 0){
+        clearInterval(timeOutId);
+        falseCount++;
+        qCount++;
+        time = 10;
+        getQuestions();
+     }
+     console.log(time);
 }
 
 //shuffle the array function
@@ -79,23 +120,32 @@ function renderQuestion(response) {
         answersDiv.appendTo("#triviaDiv");
     });
 
+    
+
 }
 
-getQuestions();
-
 $("#triviaDiv").on("click", ".answersDiv", function() {
+
     if ($(this).attr("data-value") === "correct" ) {
         correctCount++;
     }
     else{
         falseCount++;
     }
+    qCount++;
+    clearInterval(timeOutId);
+    time = 10;
     getQuestions();
 
     console.log("Correct : " +correctCount);
     console.log("Incorrect : " + falseCount);
 });
 
+$("#triviaDiv").on("click","#resetBut",function(){
+    reset();
+});
 
-
-
+$("#triviaDiv").on("click","#startBut",function(){
+    startState = true;
+    getQuestions();
+});
