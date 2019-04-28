@@ -12,6 +12,7 @@ function getQuestions() {
     }).then(function (response) {
 
         //get the answers from the json and push them in to an array
+        shuffledAnswers =[];
         shuffledAnswers.push(response.results[0].correct_answer);
         correctAnswer = response.results[0].correct_answer;
 
@@ -51,6 +52,7 @@ function shuffleArr(arr){
 }
 
 function renderQuestion(response) {
+    $("#triviaDiv").empty();
 
     //get the question and render it 
     let tQuestion = unescape(response.results[0].question);//decode the question string
@@ -80,6 +82,20 @@ function renderQuestion(response) {
 }
 
 getQuestions();
+
+$("#triviaDiv").on("click", ".answersDiv", function() {
+    if ($(this).attr("data-value") === "correct" ) {
+        correctCount++;
+    }
+    else{
+        falseCount++;
+    }
+    getQuestions();
+
+    console.log("Correct : " +correctCount);
+    console.log("Incorrect : " + falseCount);
+});
+
 
 
 
