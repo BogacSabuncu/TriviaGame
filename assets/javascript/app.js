@@ -19,9 +19,9 @@ function getQuestions() {
         method: 'GET'
     }).then(function (response) {
 
-        if(qCount <= 10){
+        if (qCount <= 10) {
             //get the answers from the json and push them in to an array
-            shuffledAnswers =[];
+            shuffledAnswers = [];
             shuffledAnswers.push(response.results[0].correct_answer);
             correctAnswer = response.results[0].correct_answer;
 
@@ -39,10 +39,10 @@ function getQuestions() {
 
             timeOutId = setInterval(countDown, 1000);
         }
-        else{
+        else {
             displayResults();
         }
-    
+
 
     }).catch(function (err) {
         console.log(err);
@@ -62,29 +62,33 @@ function reset() {
     $("#triviaDiv").append(`<button type="button" id ="startBut" class="btn btn-info btn-lg btn-block my-5"> START! </button>`);
 }
 
-function displayResults(){
+function displayResults() {
     $("#triviaDiv").empty();
-    $("#triviaDiv").append(`<h4> Correct : ${correctCount} </h4>`);
-    $("#triviaDiv").append(`<h4> Incorrect : ${falseCount} </h4>`);
-    $("#triviaDiv").append(`<button type="button" id = "resetBut"> Restart! </button>`);
+    let resultsDiv = $("<div>").attr("id", "resultsDiv");
+    resultsDiv.html(`<h3 class="correctDisp"> Correct : ${correctCount} </h3>
+                            <h3 class="correctDisp"> Incorrect : ${falseCount} </h3>`);
+
+    $("#triviaDiv").append(resultsDiv);
+    $("#triviaDiv").append(`<button type="button" class="btn btn-info btn-lg btn-block my-5" id = "resetBut"> Restart! </button>`);
+
 }
 
-function countDown(){
+function countDown() {
     time--;
     $("#time").text(`Time Left: ${time}`);
 
-    if(time == 0){
+    if (time == 0) {
         clearInterval(timeOutId);
         falseCount++;
         qCount++;
         time = 15;
         getQuestions();
-     }
-     
+    }
+
 }
 
 //shuffle the array function
-function shuffleArr(arr){
+function shuffleArr(arr) {
     var j, x, i;
     for (i = arr.length - 1; i > 0; i--) {
         j = Math.floor(Math.random() * (i + 1));
@@ -111,11 +115,11 @@ function renderQuestion(response) {
         let tAnswer = unescape(element);//decode the answers string
         let answersButton = $(`<button type="button" class="btn btn-primary btn-lg btn-block">`);//create a div for the answers
         answersButton.addClass("answersButton");//add the class for the div
-        
+
         //tagging the correct and incorrect answers
-        if(element === correctAnswer){
+        if (element === correctAnswer) {
             answersButton.attr("data-value", "correct");
-        }else{
+        } else {
             answersButton.attr("data-value", "incorrect");
         }
 
@@ -124,19 +128,19 @@ function renderQuestion(response) {
         answersButton.appendTo("#triviaDiv");
     });
 
-    
+
 
 }
 
-$("#triviaDiv").on("click", ".answersButton", function() {
+$("#triviaDiv").on("click", ".answersButton", function () {
     clearInterval(timeOutId);
 
-    if ($(this).attr("data-value") === "correct" ) {
+    if ($(this).attr("data-value") === "correct") {
         $(this).removeClass().addClass("btn btn-success btn-lg btn-block m-3");
         $(this).attr("")
         correctCount++;
     }
-    else{
+    else {
         $(this).removeClass().addClass("btn btn-danger btn-lg btn-block");
         falseCount++;
     }
@@ -147,15 +151,21 @@ $("#triviaDiv").on("click", ".answersButton", function() {
     let secondTimeOut = setTimeout(getQuestions, 500);
     //getQuestions();
 
-    console.log("Correct : " +correctCount);
+    console.log("Correct : " + correctCount);
     console.log("Incorrect : " + falseCount);
 });
 
-$("#triviaDiv").on("click","#resetBut",function(){
+$("#triviaDiv").on("click", "#resetBut", function () {
     reset();
 });
 
-$("#triviaDiv").on("click","#startBut",function(){
+$("#triviaDiv").on("click", "#startBut", function () {
     startState = true;
     getQuestions();
 });
+
+// function dispayCorrect(){
+//     $(".triviaDiv").children(".answersButton").each(function(element){
+//         element.a
+//     });
+// }
