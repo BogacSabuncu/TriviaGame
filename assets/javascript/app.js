@@ -2,7 +2,8 @@ let correctCount = 0;
 let falseCount = 0;
 let qCount = 1;
 let timeOutId;
-let time = 10;
+let secondTimeOut;
+let time = 15;
 let startState = false;
 
 let triviaUrl = "https://opentdb.com/api.php?amount=1&type=multiple&encode=url3986";
@@ -11,6 +12,7 @@ var shuffledAnswers = new Array();
 let correctAnswer = "";
 
 function getQuestions() {
+    clearTimeout(secondTimeOut);
 
     $.ajax({
         url: triviaUrl,
@@ -51,13 +53,13 @@ function getQuestions() {
 function reset() {
     correctCount = 0;
     falseCount = 0;
-    qCount = 0;
-    time = 10;
+    qCount = 1;
+    time = 15;
     clearInterval(timeOutId);
 
     startState = false;
     $("#triviaDiv").empty();
-    $("#triviaDiv").append(`<button type="button" id ="startBut"> START! </button>`);
+    $("#triviaDiv").append(`<button type="button" id ="startBut" class="btn btn-info btn-lg btn-block my-5"> START! </button>`);
 }
 
 function displayResults(){
@@ -69,15 +71,16 @@ function displayResults(){
 
 function countDown(){
     time--;
+    $("#time").text(`Time Left: ${time}`);
 
     if(time == 0){
         clearInterval(timeOutId);
         falseCount++;
         qCount++;
-        time = 10;
+        time = 15;
         getQuestions();
      }
-     console.log(time);
+     
 }
 
 //shuffle the array function
@@ -99,43 +102,50 @@ function renderQuestion(response) {
     let tQuestion = unescape(response.results[0].question);//decode the question string
     let questionDiv = $("<div>");//create a div for the question
     questionDiv.addClass("questionDiv");//add the class to the div
-    questionDiv.html(`<h4> ${tQuestion} </h4>`);//add the heml for the dic
+    questionDiv.html(`<h4 id = "question"> ${tQuestion} </h4>
+                        <h5 id ="time"> Time Left: ${time} </h5>`);//add the html for the div
     questionDiv.appendTo($("#triviaDiv"));//append the questionDiv to TriviaDiv
 
     //displaying the answers
     shuffledAnswers.forEach(element => {
         let tAnswer = unescape(element);//decode the answers string
-        let answersDiv = $("<div>");//create a div for the answers
-        answersDiv.addClass("answersDiv");//add the class for the div
+        let answersButton = $(`<button type="button" class="btn btn-primary btn-lg btn-block">`);//create a div for the answers
+        answersButton.addClass("answersButton");//add the class for the div
         
         //tagging the correct and incorrect answers
         if(element === correctAnswer){
-            answersDiv.attr("data-value", "correct");
+            answersButton.attr("data-value", "correct");
         }else{
-            answersDiv.attr("data-value", "incorrect");
+            answersButton.attr("data-value", "incorrect");
         }
 
-        answersDiv.html(`<p> ${tAnswer}  </p>`);//add the html to the div
+        answersButton.html(`<p> ${tAnswer}  </p>`);//add the html to the div
 
-        answersDiv.appendTo("#triviaDiv");
+        answersButton.appendTo("#triviaDiv");
     });
 
     
 
 }
 
-$("#triviaDiv").on("click", ".answersDiv", function() {
+$("#triviaDiv").on("click", ".answersButton", function() {
+    clearInterval(timeOutId);
 
     if ($(this).attr("data-value") === "correct" ) {
+        $(this).removeClass().addClass("btn btn-success btn-lg btn-block m-3");
+        $(this).attr("")
         correctCount++;
     }
     else{
+        $(this).removeClass().addClass("btn btn-danger btn-lg btn-block");
         falseCount++;
     }
+
     qCount++;
-    clearInterval(timeOutId);
-    time = 10;
-    getQuestions();
+    time = 15;
+
+    let secondTimeOut = setTimeout(getQuestions, 500);
+    //getQuestions();
 
     console.log("Correct : " +correctCount);
     console.log("Incorrect : " + falseCount);
