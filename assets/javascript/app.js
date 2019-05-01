@@ -136,14 +136,12 @@ $("#triviaDiv").on("click", ".answersButton", function () {
     clearInterval(timeOutId);
 
     if ($(this).attr("data-value") === "correct") {
-        $(this).removeClass().addClass("btn btn-success btn-lg btn-block m-3");
-        $(this).attr("")
         correctCount++;
     }
     else {
-        $(this).removeClass().addClass("btn btn-danger btn-lg btn-block");
         falseCount++;
     }
+    dispayCorrect();
 
     qCount++;
     time = 15;
@@ -164,8 +162,13 @@ $("#triviaDiv").on("click", "#startBut", function () {
     getQuestions();
 });
 
-// function dispayCorrect(){
-//     $(".triviaDiv").children(".answersButton").each(function(element){
-//         element.a
-//     });
-// }
+function dispayCorrect(){
+    $('#triviaDiv').children('.answersButton').each(function () {
+        if ($(this).attr("data-value") === "correct") {
+            $(this).removeClass().addClass("btn btn-success btn-lg btn-block m-3"); // "this" is the current element in the loop
+        }
+        else {
+        $(this).removeClass().addClass("btn btn-danger btn-lg btn-block");
+        }
+    });
+ }
